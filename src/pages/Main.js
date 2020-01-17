@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Image, View, Text, TextInput, TouchableOpacity } from 'react-native';
 import MapView, { Marker, Callout } from 'react-native-maps';
 
-import { MaterialIcons } from '@expo/vector-icons';
+import {
+  MaterialIcons
+} from '@expo/vector-icons';
+
+import api from '../services/axios';
 
 import {
   requestPermissionsAsync,
@@ -11,8 +15,10 @@ import {
 
 function Main({ navigation }) {
 
+  const [ devs, setDevs] = useState([]);
   const [ currentRegion , setCurrentRegion ] = useState(null);
 
+  // Pega posição inicial e só depois nunca mais e execultado nesse componente
   useEffect(() => {
     async function loadInitialPosition() {
       const { granted } = await requestPermissionsAsync();
@@ -38,6 +44,25 @@ function Main({ navigation }) {
   }, []);
 
 
+  async function loadDevs() {
+    const { longitude, latitude } = currentRegion;
+
+    const response = await api.get('/seach', {
+      params: {
+        latitude,
+        longitude,
+        techs: 'ReactJS'
+      }
+    });
+
+    setDevs(response.data);
+
+  }
+
+  async function handleRegionChange(region) {
+    setCurrentRegion(region);
+  }
+
   if(!currentRegion) {
     return null;
   }
@@ -45,7 +70,7 @@ function Main({ navigation }) {
 
   return (
     <>
-      <MapView initialRegion={currentRegion} style={styles.map} >
+      <MapView onRegionChangeComplete={handleRegionChange} initialRegion={currentRegion} style={styles.map} >
       <Marker coordinate={{ latitude: -9.3624657, longitude: -40.5509536}} >
         <Image style={styles.avatar} source={{ uri: 'https://avatars1.githubusercontent.com/u/43470555?s=460&v=4' }} />
         {/* Tudo que iremos colocar aqui é o que vai acontecer quando o usuário digitar */}
@@ -67,7 +92,7 @@ function Main({ navigation }) {
       <View style={styles.seachForm} >
         <TextInput style={styles.seachInput} placeholder='Buscar devs por techs' placeholderTextColor='#999' autoCapitalize='words' autoCorrect={false} />
 
-        <TouchableOpacity onPress={() => {}} style={styles.loadButton}>
+        <TouchableOpacity onPress={loadDevs} style={styles.loadButton}>
           <MaterialIcons name='my-location' size={20} color='#FFF' />
         </TouchableOpacity>
       </View>
