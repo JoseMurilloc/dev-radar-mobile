@@ -17,6 +17,7 @@ function Main({ navigation }) {
 
   const [ devs, setDevs] = useState([]);
   const [ currentRegion , setCurrentRegion ] = useState(null);
+  const [ techs , setTechs ] = useState('');
 
   // Pega posição inicial e só depois nunca mais e execultado nesse componente
   useEffect(() => {
@@ -51,10 +52,10 @@ function Main({ navigation }) {
       params: {
         latitude,
         longitude,
-        techs: 'ReactJS'
+        techs
       }
     });
-
+    
     setDevs(response.data);
 
   }
@@ -71,26 +72,29 @@ function Main({ navigation }) {
   return (
     <>
       <MapView onRegionChangeComplete={handleRegionChange} initialRegion={currentRegion} style={styles.map} >
-      <Marker coordinate={{ latitude: -9.3624657, longitude: -40.5509536}} >
-        <Image style={styles.avatar} source={{ uri: 'https://avatars1.githubusercontent.com/u/43470555?s=460&v=4' }} />
+
+      {devs.map(dev => (
+        <Marker key={dev._id} coordinate={{ latitude: dev.location.coordinates[1], longitude: dev.location.coordinates[0]}} >
+        <Image style={styles.avatar} source={{ uri: dev.avatar_url }} />
         {/* Tudo que iremos colocar aqui é o que vai acontecer quando o usuário digitar */}
         <Callout onPress={() => {
           // Nagetação
-          navigation.navigate('Profile', { github_username: 'JoseMurilloc' });
+          navigation.navigate('Profile', { github_username: dev.github_username });
 
         }}>
           <View style={styles.callout}>
-            <Text style={styles.devName}>José Murillo</Text>
-            <Text style={styles.devBio}>Desenvolvedor back end jr com nodejs, com habilidades em ReactJS - Cursando ciência da computação.
-</Text>
-            <Text style={styles.devTechs}>NodeJS, Git, ReactJS</Text>
+            <Text style={styles.devName}>{dev.name}</Text>
+      <Text style={styles.devBio}>{dev.bio}</Text>
+            <Text style={styles.devTechs}>{dev.techs.join(', ')}</Text>
           </View>
         </Callout>
       </Marker>
+      ))}
+
     </MapView>
 
       <View style={styles.seachForm} >
-        <TextInput style={styles.seachInput} placeholder='Buscar devs por techs' placeholderTextColor='#999' autoCapitalize='words' autoCorrect={false} />
+        <TextInput style={styles.seachInput} placeholder='Buscar devs por techs' placeholderTextColor='#999' autoCapitalize='words' autoCorrect={false}  value={techs} onChangeText={setTechs}/>
 
         <TouchableOpacity onPress={loadDevs} style={styles.loadButton}>
           <MaterialIcons name='my-location' size={20} color='#FFF' />
