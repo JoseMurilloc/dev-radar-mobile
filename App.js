@@ -1,6 +1,8 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { StatusBar, YellowBox } from 'react-native';
 // Tags react native não tem significado semântico... Não usamos id ou classes para aplicar estilo as tags...
+
+YellowBox.ignoreWarnings(['Unrecognized WebSocket']);
 
 import Routes from './src/routes';
 

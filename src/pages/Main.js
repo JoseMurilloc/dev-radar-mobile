@@ -7,6 +7,7 @@ import {
 } from '@expo/vector-icons';
 
 import api from '../services/axios';
+import { connect, disconnect } from '../services/socket';
 
 import {
   requestPermissionsAsync,
@@ -45,6 +46,12 @@ function Main({ navigation }) {
   }, []);
 
 
+  function setupWebSocket() {
+    connect();
+  }
+
+
+  // A aplicação tem que esculta as atulizações em tempo real depois que o usuário clica no botão para então se saber quais techs e sua localização
   async function loadDevs() {
     const { longitude, latitude } = currentRegion;
 
@@ -57,7 +64,7 @@ function Main({ navigation }) {
     });
     
     setDevs(response.data);
-
+    setupWebSocket();
   }
 
   async function handleRegionChange(region) {
